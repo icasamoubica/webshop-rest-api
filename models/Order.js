@@ -14,12 +14,20 @@ module.exports = {
         if(validate(body)){
             const {items, customer, payment} = body
             const products = await Product.find(items)
+
+            items.forEach( id => {
+                const product = products.find(product => product._id == id)
+                if(product.amount){ product.amount++}
+                else{ product.amount = 1}
+            })
+
             const order = await orders.insert({
                 items,
                 timeStamp: Date.now(),
                 status: 'inProcess',
-                orderValue: products.reduce((acc,product) => acc+product.price, 0)
+                orderValue: products.reduce( (acc,product) => acc+product.price*product.amount, 0)
             })
+            console.log(order)
             await User.addOrderToUser(order, user)
             
 
