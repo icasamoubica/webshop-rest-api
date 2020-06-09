@@ -27,7 +27,7 @@ module.exports = {
                 status: 'inProcess',
                 orderValue: products.reduce( (acc,product) => acc+product.price*product.amount, 0)
             })
-            console.log(order)
+            
             await User.addOrderToUser(order, user)
             
 
