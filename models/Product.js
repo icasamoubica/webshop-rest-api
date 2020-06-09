@@ -1,6 +1,8 @@
 const NeDB = require('nedb-promise')
 const products = new NeDB({filename:'database/products.db', autoload: true})
 
+const Errors = require('../errors')
+
 const categorySort = (a,b) => a.category < b.category ? -1 : 1
 
 
@@ -48,12 +50,17 @@ module.exports = {
                 return acc
             }, {})
             
-            await products.update({_id:productId}, patch)
-            const product = products.findOne({_id:productId})
+            const numUpdated = await products.update({_id:productId}, patch)
 
-            return {error:false, data: product}
+            if(numUpdated > 0){
+                const product = await products.findOne({_id:productId})
+                return {error: Errors.NO_ERROR, data: product}
+            }else{
+                return {error: Errors.NOT_FOUND}
+            }
+
         }catch(error){
-            return {error:true, message:error}
+            return {error: Errors.INVALID_PARAMETERS, message:error}
         }
     },
 
